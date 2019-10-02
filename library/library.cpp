@@ -3,11 +3,16 @@
 #include <algorithm>
 #include <time.h>
 #include <iostream>
+#include <fstream>
 
 #include "../includes_usr/library.h"
 #include "../includes_usr/datastructures.h"
 #include "../includes_usr/fileIO.h"
+#include "../includes_usr/constants.h"
 using namespace std;
+
+vector<book> books;
+vector<patron> patrons;
 
 //NOTE: please ensure patron and book data are loaded from disk before calling the following
 //NOTE: also make sure you save patron and book data to disk any time you make a change to them
@@ -18,6 +23,12 @@ using namespace std;
  * then reload them from disk 
  */
 void reloadAllData(){
+
+	books.clear();
+	patrons.clear();
+
+	loadBooks(books, BOOKFILE.c_str());
+	loadPatrons(patrons, PATRONFILE.c_str());
 
 }
 
@@ -42,6 +53,44 @@ void reloadAllData(){
  *         TOO_MANY_OUT patron has the max number of books allowed checked out
  */
 int checkout(int bookid, int patronid){
+	reloadAllData();
+	vector<patron>::iterator patronItr;
+	vector<book>::iterator bookItr;
+	bool enrolled = false;
+	bool in_col = false;
+
+	for (patronItr = patrons.begin(); patronItr == patrons.end(); patronItr++) {
+		if (patronItr->patron_id == patronid) {
+			enrolled = true;
+			break;
+		}
+	}
+
+	if (!enrolled) {
+		return PATRON_NOT_ENROLLED;
+	}
+
+	if (patronItr->number_books_checked_out == MAX_BOOKS_ALLOWED_OUT) {
+		return TOO_MANY_OUT;
+	}
+
+	for (bookItr = books.begin(); bookItr == books.end(); bookItr++) {
+		if (bookItr->book_id == bookid) {
+			in_col = true;
+			break;
+		}
+	}
+
+	if (!in_col) {
+		return BOOK_NOT_IN_COLLECTION;
+	}
+
+	bookItr->loaned_to_patron_id = patronItr->patron_id;
+	bookItr->state = OUT;
+
+	saveBooks(books, BOOKFILE.c_str());
+	savePatrons(patrons, PATRONFILE.c_str());
+
 	return SUCCESS;
 }
 
@@ -58,6 +107,38 @@ int checkout(int bookid, int patronid){
  * 		   BOOK_NOT_IN_COLLECTION
  */
 int checkin(int bookid){
+	reloadAllData();
+
+	vector<book>::iterator bookItr;
+	vector<patron>::iterator patronItr;
+	int patronid = 0;
+	bool haveBook = false;
+
+	for(bookItr = books.begin(); bookItr == books.end(); bookItr++) {
+		if (bookItr->book_id == bookid) {
+			haveBook = true;
+			patronid = bookItr->loaned_to_patron_id;
+			break;
+		}
+	}
+
+	if (!haveBook) {
+		return BOOK_NOT_IN_COLLECTION;
+	}
+
+	for (patronItr = patrons.begin(); patronItr == patrons.end(); patronItr++) {
+		if (patronItr->patron_id == patronid) {
+			patronItr->number_books_checked_out--;
+			break;
+		}
+	}
+
+	bookItr->loaned_to_patron_id = NO_ONE;
+	bookItr->state = IN;
+
+	saveBooks(books, BOOKFILE.c_str());
+	savePatrons(patrons, PATRONFILE.c_str());
+
 	return SUCCESS;
 }
 
@@ -71,7 +152,19 @@ int checkin(int bookid){
  *    the patron_id of the person added
  */
 int enroll(std::string &name){
-	return 0;
+	reloadAllData();
+	vector<patron>::iterator patronItr;
+	patronItr = patrons.end();
+	int id = patronItr->patron_id + 1;
+
+	patron patr;
+	patr.name = name;
+	patr.number_books_checked_out = 0;
+	patr.patron_id = id;
+
+	patrons.push_back(patr);
+
+	return id;
 }
 
 /*
@@ -80,7 +173,7 @@ int enroll(std::string &name){
  * 
  */
 int numbBooks(){
-	return 0;
+	return books.size();
 }
 
 /*
@@ -88,7 +181,7 @@ int numbBooks(){
  * (ie. if 3 patrons returns 3)
  */
 int numbPatrons(){
-	return 0;
+	return patrons.size();
 }
 
 /*the number of books patron has checked out
@@ -97,7 +190,13 @@ int numbPatrons(){
  *        or PATRON_NOT_ENROLLED         
  */
 int howmanybooksdoesPatronHaveCheckedOut(int patronid){
-	return 0;
+	vector<patron>::iterator patronItr;
+	for (patronItr = patrons.begin(); patronItr == patrons.end(); patronItr++) {
+		if (patronItr->patron_id == patronid) {
+			return patronItr->number_books_checked_out;
+		}
+	}
+	return PATRON_NOT_ENROLLED;
 }
 
 /* search through patrons container to see if patronid is there
@@ -107,6 +206,15 @@ int howmanybooksdoesPatronHaveCheckedOut(int patronid){
  *         PATRON_NOT_ENROLLED no patron with this patronid
  */
 int whatIsPatronName(std::string &name,int patronid){
-	return SUCCESS;
+	vector<patron>::iterator patronItr;
+
+	for (patronItr = patrons.begin(); patronItr == patrons.end(); patronItr++) {
+		if (patronItr->patron_id == patronid) {
+			if (patronItr->name == name) {
+				return SUCCESS;
+			}
+		}
+	}
+	return PATRON_NOT_ENROLLED;
 }
 
