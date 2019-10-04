@@ -153,9 +153,14 @@ int checkin(int bookid){
  */
 int enroll(std::string &name){
 	reloadAllData();
-	vector<patron>::iterator patronItr;
-	patronItr = patrons.end();
-	int id = patronItr->patron_id + 1;
+//	vector<patron>::iterator patronItr;
+//	patronItr = patrons.end();
+
+	int id = 0;
+
+	if (patrons.size() > 0) {
+		id = patrons[patrons.size() - 1].patron_id + 1;
+	}
 
 	patron patr;
 	patr.name = name;
