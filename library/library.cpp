@@ -59,7 +59,7 @@ int checkout(int bookid, int patronid){
 	bool enrolled = false;
 	bool in_col = false;
 
-	for (patronItr = patrons.begin(); patronItr == patrons.end(); patronItr++) {
+	for (patronItr = patrons.begin(); patronItr != patrons.end(); patronItr++) {
 		if (patronItr->patron_id == patronid) {
 			enrolled = true;
 			break;
@@ -74,7 +74,7 @@ int checkout(int bookid, int patronid){
 		return TOO_MANY_OUT;
 	}
 
-	for (bookItr = books.begin(); bookItr == books.end(); bookItr++) {
+	for (bookItr = books.begin(); bookItr != books.end(); bookItr++) {
 		if (bookItr->book_id == bookid) {
 			in_col = true;
 			break;
@@ -87,6 +87,7 @@ int checkout(int bookid, int patronid){
 
 	bookItr->loaned_to_patron_id = patronItr->patron_id;
 	bookItr->state = OUT;
+	patronItr->number_books_checked_out++;
 
 	saveBooks(books, BOOKFILE.c_str());
 	savePatrons(patrons, PATRONFILE.c_str());
@@ -114,7 +115,7 @@ int checkin(int bookid){
 	int patronid = 0;
 	bool haveBook = false;
 
-	for(bookItr = books.begin(); bookItr == books.end(); bookItr++) {
+	for(bookItr = books.begin(); bookItr != books.end(); bookItr++) {
 		if (bookItr->book_id == bookid) {
 			haveBook = true;
 			patronid = bookItr->loaned_to_patron_id;
@@ -126,7 +127,7 @@ int checkin(int bookid){
 		return BOOK_NOT_IN_COLLECTION;
 	}
 
-	for (patronItr = patrons.begin(); patronItr == patrons.end(); patronItr++) {
+	for (patronItr = patrons.begin(); patronItr != patrons.end(); patronItr++) {
 		if (patronItr->patron_id == patronid) {
 			patronItr->number_books_checked_out--;
 			break;
@@ -152,13 +153,11 @@ int checkin(int bookid){
  *    the patron_id of the person added
  */
 int enroll(std::string &name){
-	reloadAllData();
-//	vector<patron>::iterator patronItr;
-//	patronItr = patrons.end();
+//	reloadAllData();
 
 	int id = 0;
 
-	if (patrons.size() > 0) {
+	if (patrons.size() != 0) {;
 		id = patrons[patrons.size() - 1].patron_id + 1;
 	}
 
@@ -169,6 +168,8 @@ int enroll(std::string &name){
 
 	patrons.push_back(patr);
 
+	savePatrons(patrons, PATRONFILE.c_str());
+
 	return id;
 }
 
@@ -178,6 +179,7 @@ int enroll(std::string &name){
  * 
  */
 int numbBooks(){
+	reloadAllData();
 	return books.size();
 }
 
@@ -186,6 +188,7 @@ int numbBooks(){
  * (ie. if 3 patrons returns 3)
  */
 int numbPatrons(){
+	reloadAllData();
 	return patrons.size();
 }
 
@@ -196,7 +199,7 @@ int numbPatrons(){
  */
 int howmanybooksdoesPatronHaveCheckedOut(int patronid){
 	vector<patron>::iterator patronItr;
-	for (patronItr = patrons.begin(); patronItr == patrons.end(); patronItr++) {
+	for (patronItr = patrons.begin(); patronItr != patrons.end(); patronItr++) {
 		if (patronItr->patron_id == patronid) {
 			return patronItr->number_books_checked_out;
 		}
@@ -213,7 +216,7 @@ int howmanybooksdoesPatronHaveCheckedOut(int patronid){
 int whatIsPatronName(std::string &name,int patronid){
 	vector<patron>::iterator patronItr;
 
-	for (patronItr = patrons.begin(); patronItr == patrons.end(); patronItr++) {
+	for (patronItr = patrons.begin(); patronItr != patrons.end(); patronItr++) {
 		if (patronItr->patron_id == patronid) {
 			if (patronItr->name == name) {
 				return SUCCESS;

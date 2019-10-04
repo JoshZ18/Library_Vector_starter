@@ -146,11 +146,11 @@ void testfileIO(){
 	
 	//save it
 	EXPECT_EQ(SUCCESS, savePatrons(patrons, TMP_FILE.c_str()),"9",THREE_POINTS);
-	
-	//compare the 2 files (this could fail if you have an extra linefeed in your file)
-	//compare the 2 files (this could fail if you have an extra linefeed in your file)
+
+//	compare the 2 files (this could fail if you have an extra linefeed in your file)
+//	compare the 2 files (this could fail if you have an extra linefeed in your file)
 	if (does_file_exist(TMP_FILE) && does_file_exist(PATRONFILE))
-		EXPECT_EQ(true,diff_files(PATRONFILE, TMP_FILE),"10",FIVE_POINTS);	
+		EXPECT_EQ(true,diff_files(PATRONFILE, TMP_FILE),"10",FIVE_POINTS);
 }
 
 /*
@@ -163,7 +163,7 @@ void testnumbBooksAndnumpPatrons(){
 	} catch (...) {
 		cout<<"Threw exception in numbBooks"<<endl;
 	}
-	
+
 	EXPECT_EQ(20, n,"tnbnp1",THREE_POINTS);
 
 	try{
@@ -173,7 +173,7 @@ void testnumbBooksAndnumpPatrons(){
 	}
 	EXPECT_EQ(7, n,"tnbnp2",THREE_POINTS);
 }
-void testenroll(){		
+void testenroll(){
 	//force a reload of data
 	try{
 		reloadAllData();
@@ -191,15 +191,15 @@ void testenroll(){
 	//verify no patrons
 	EXPECT_EQ(NONE, numbpatrons,"te1",THREE_POINTS);
 
-	//enroll one 
+	//enroll one
 	string name = "keith";
 	int id;
 	try{
-		 id = enroll(name);	
+		 id = enroll(name);
 	} catch (...) {
 		cout<<"Threw exception when enrolling"<<endl;
 	}
-	
+
 
 	EXPECT_EQ(0, id,"te2",THREE_POINTS);
 
@@ -209,11 +209,11 @@ void testenroll(){
 	name = "allen";
 
 	try{
-		id = enroll(name);	
+		id = enroll(name);
 	} catch (...) {
 		cout<<"Threw exception when enrolling"<<endl;
 	}
-	
+
 	EXPECT_EQ(1, id,"te4",THREE_POINTS);
 	EXPECT_EQ(SUCCESS, whatIsPatronName(name,id),"te5",FIVE_POINTS);
 
@@ -231,21 +231,21 @@ void testcheckoutandin(){
 		cout<<"Threw exception when enrolling"<<endl;
 	}
 	EXPECT_EQ(PATRON_NOT_ENROLLED, iret,"tci1",THREE_POINTS);
-	
+
 	int book = BOGUS_BOOK;
 	try{
-		iret = checkout(BOGUS_BOOK, 0);	
+		iret = checkout(BOGUS_BOOK, 0);
 	} catch (...) {
 		cout<<"Threw exception when checking out"<<endl;
 	}
-	
+
 	EXPECT_EQ(BOOK_NOT_IN_COLLECTION, iret,"tci2",FIVE_POINTS);
 	try{
 		user = numbPatrons()-1;
 	} catch (...) {
 		cout<<"Threw exception when subtracting from numbPatrons"<<endl;
 	}
-	
+
 
 	int i;
 	for (i=0;i<MAX_BOOKS_ALLOWED_OUT;i++){
@@ -254,8 +254,8 @@ void testcheckoutandin(){
 		} catch (...) {
 			cout<<"Threw exception when checking out"<<endl;
 		}
-	
-		EXPECT_EQ(SUCCESS, iret,"tci..",ONE_POINTS);	
+
+		EXPECT_EQ(SUCCESS, iret,"tci..",ONE_POINTS);
 	}
 
 	try{
@@ -272,7 +272,7 @@ void testcheckoutandin(){
 	}
 
 	EXPECT_EQ(MAX_BOOKS_ALLOWED_OUT, iret,"tci4",FIVE_POINTS);
-	
+
 	//try to check in a bogus book
 	book = BOGUS_BOOK;
 	try{
@@ -280,7 +280,7 @@ void testcheckoutandin(){
 	} catch (...) {
 		cout<<"Threw exception when checking in"<<endl;
 	}
-	
+
 	EXPECT_EQ(BOOK_NOT_IN_COLLECTION, iret,"tci5",FIVE_POINTS);
 
 	book = 0;
@@ -288,7 +288,7 @@ void testcheckoutandin(){
 		iret = checkin(book);
 	} catch (...) {
 		cout<<"Threw exception when checking in"<<endl;
-	}	
+	}
 	EXPECT_EQ(SUCCESS, iret,"tci6",FIVE_POINTS);
 
 	try{
@@ -296,8 +296,8 @@ void testcheckoutandin(){
 	} catch (...) {
 		cout<<"Threw exception in howmanybooksdoesPatronHaveCheckedOut"<<endl;
 	}
-		
-	EXPECT_EQ(MAX_BOOKS_ALLOWED_OUT-1, iret,"tci7",FIVE_POINTS);	
+
+	EXPECT_EQ(MAX_BOOKS_ALLOWED_OUT-1, iret,"tci7",FIVE_POINTS);
 }
 
 int main(int argc, char *argv[]){
@@ -305,15 +305,15 @@ int main(int argc, char *argv[]){
 		string student = argv[1];
 		cout<<"************* for student "<<student<<" *************"<<endl;
 	}
-		
+
 	//put the original books and patrons files back
 	reset_books_patrons();
-	
+
 	testfileIO();
 	testnumbBooksAndnumpPatrons();
 	clear_patrons();
 	testenroll();
 	testcheckoutandin();
-	
+
     return 0;
 }

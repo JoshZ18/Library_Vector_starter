@@ -1,8 +1,8 @@
 0,"MANAGING A DENTAL PRACTICE: THE GENGHIS KHAN WAY","author1",1,-2
-1, "How to avoid Huge ships", "author1",1,-2
-2, "The Stray Shopping Carts of Eastern North America","author2",1,-2
-3, "Extreme Ironing","Phil Shaw",1,-2
-4,"Why Cats Paint","Heather Busch",1,-2
+1, "How to avoid Huge ships", "author1",2,1
+2, "The Stray Shopping Carts of Eastern North America","author2",2,1
+3, "Extreme Ironing","Phil Shaw",2,1
+4,"Why Cats Paint","Heather Busch",2,1
 5, "Pets with Tourette’s","Mark Leigh",1,-2
 6,"Old Tractors and the Men Who Love Them","Roger Welsch",1,-2
 7,"Be Bold With Bananas","Crescent Books",1,-2
