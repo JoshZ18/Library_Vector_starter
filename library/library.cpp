@@ -23,10 +23,7 @@ vector<patron> patrons;
  * then reload them from disk 
  */
 void reloadAllData(){
-
-	books.clear();
-	patrons.clear();
-
+	//Loads all the books and patrons data
 	loadBooks(books, BOOKFILE.c_str());
 	loadPatrons(patrons, PATRONFILE.c_str());
 
@@ -53,12 +50,14 @@ void reloadAllData(){
  *         TOO_MANY_OUT patron has the max number of books allowed checked out
  */
 int checkout(int bookid, int patronid){
+	//Reloads data before checking out
 	reloadAllData();
 	vector<patron>::iterator patronItr;
 	vector<book>::iterator bookItr;
 	bool enrolled = false;
 	bool in_col = false;
 
+	//Iterates through to make sure a patron is enrolled
 	for (patronItr = patrons.begin(); patronItr != patrons.end(); patronItr++) {
 		if (patronItr->patron_id == patronid) {
 			enrolled = true;
@@ -66,14 +65,17 @@ int checkout(int bookid, int patronid){
 		}
 	}
 
+	//Checks to see if a patron is not enrolled
 	if (!enrolled) {
 		return PATRON_NOT_ENROLLED;
 	}
 
+	//Makes sure a patron does not have the maximum number of books checked out
 	if (patronItr->number_books_checked_out == MAX_BOOKS_ALLOWED_OUT) {
 		return TOO_MANY_OUT;
 	}
 
+	//Iterates through to see if a book is in the collection
 	for (bookItr = books.begin(); bookItr != books.end(); bookItr++) {
 		if (bookItr->book_id == bookid) {
 			in_col = true;
@@ -81,14 +83,17 @@ int checkout(int bookid, int patronid){
 		}
 	}
 
+	//Checks if a book is not in collection
 	if (!in_col) {
 		return BOOK_NOT_IN_COLLECTION;
 	}
 
+	//Checks the book out to the patron and updates the patron's and book's data
 	bookItr->loaned_to_patron_id = patronItr->patron_id;
 	bookItr->state = OUT;
 	patronItr->number_books_checked_out++;
 
+	//Saves the data of books and patrons to two files
 	saveBooks(books, BOOKFILE.c_str());
 	savePatrons(patrons, PATRONFILE.c_str());
 
@@ -108,6 +113,7 @@ int checkout(int bookid, int patronid){
  * 		   BOOK_NOT_IN_COLLECTION
  */
 int checkin(int bookid){
+	//Reloads data before checking in a book
 	reloadAllData();
 
 	vector<book>::iterator bookItr;
@@ -115,6 +121,7 @@ int checkin(int bookid){
 	int patronid = 0;
 	bool haveBook = false;
 
+	//Iterates through to see if a book is in the collection
 	for(bookItr = books.begin(); bookItr != books.end(); bookItr++) {
 		if (bookItr->book_id == bookid) {
 			haveBook = true;
@@ -123,10 +130,12 @@ int checkin(int bookid){
 		}
 	}
 
+	//Checks if the book is not in the collection
 	if (!haveBook) {
 		return BOOK_NOT_IN_COLLECTION;
 	}
 
+	//Iterates through see if a patron is enrolled and decreases the number of books checked out
 	for (patronItr = patrons.begin(); patronItr != patrons.end(); patronItr++) {
 		if (patronItr->patron_id == patronid) {
 			patronItr->number_books_checked_out--;
@@ -134,9 +143,11 @@ int checkin(int bookid){
 		}
 	}
 
+	//Updates book data
 	bookItr->loaned_to_patron_id = NO_ONE;
 	bookItr->state = IN;
 
+	//Saves books' and patrons' data to two different files
 	saveBooks(books, BOOKFILE.c_str());
 	savePatrons(patrons, PATRONFILE.c_str());
 
@@ -153,21 +164,25 @@ int checkin(int bookid){
  *    the patron_id of the person added
  */
 int enroll(std::string &name){
-//	reloadAllData();
+	//Reloads data before enrolling a patron
+	reloadAllData();
 
-	int id = 0;
+	//Sets the id to the first patron id
+	int id = PATRON_0;
 
+	//If there are already patrons then find the last patron id and add 1
 	if (patrons.size() != 0) {;
 		id = patrons[patrons.size() - 1].patron_id + 1;
 	}
 
+	//Create a patron and add then to the patrons vector
 	patron patr;
 	patr.name = name;
 	patr.number_books_checked_out = 0;
 	patr.patron_id = id;
-
 	patrons.push_back(patr);
 
+	//Saves the patrons' data to a file
 	savePatrons(patrons, PATRONFILE.c_str());
 
 	return id;
@@ -179,6 +194,7 @@ int enroll(std::string &name){
  * 
  */
 int numbBooks(){
+	//Reloads the books and returns the size of books vector
 	reloadAllData();
 	return books.size();
 }
@@ -188,6 +204,7 @@ int numbBooks(){
  * (ie. if 3 patrons returns 3)
  */
 int numbPatrons(){
+	//Reloads the patrons data and returns the size of the patron vector
 	reloadAllData();
 	return patrons.size();
 }
@@ -199,11 +216,15 @@ int numbPatrons(){
  */
 int howmanybooksdoesPatronHaveCheckedOut(int patronid){
 	vector<patron>::iterator patronItr;
+
+	//Iterates through to find a patron and return the number of books checked out
 	for (patronItr = patrons.begin(); patronItr != patrons.end(); patronItr++) {
 		if (patronItr->patron_id == patronid) {
 			return patronItr->number_books_checked_out;
 		}
 	}
+
+	//Returns patron not enrolled if the patronid is not found
 	return PATRON_NOT_ENROLLED;
 }
 
@@ -216,6 +237,8 @@ int howmanybooksdoesPatronHaveCheckedOut(int patronid){
 int whatIsPatronName(std::string &name,int patronid){
 	vector<patron>::iterator patronItr;
 
+	//Iterates through to find the patron's id
+	//Sees if the name given is equal to the patron's name in the vector
 	for (patronItr = patrons.begin(); patronItr != patrons.end(); patronItr++) {
 		if (patronItr->patron_id == patronid) {
 			if (patronItr->name == name) {

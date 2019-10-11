@@ -314,6 +314,5 @@ int main(int argc, char *argv[]){
 	clear_patrons();
 	testenroll();
 	testcheckoutandin();
-
     return 0;
 }
