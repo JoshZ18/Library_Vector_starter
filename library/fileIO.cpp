@@ -1,9 +1,10 @@
-#include "../includes_usr/fileIO.h"
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <iostream>
 #include <string>
+#include "../includes_usr/fileIO.h"
+
 
 using namespace std;
 /* clears, then loads books from the file filename
@@ -22,32 +23,34 @@ int loadBooks(std::vector<book> &books, const char* filename)
 
 	//Checks to see if file open before reading data
 	if (myfile.is_open()) {
+		//Reads in data till the end of a file
 		while (!myfile.eof()) {
+			//Gets a line from a file
 			std::string line = "";
 			getline(myfile, line);
 
-			std::string word = "";
+			std::string ele = "";
 			std::string strArr[5];
 			int slot = 0;
 			int length = line.length();
 
 			//Loops through every line in the file and parses out data
 			for (int i = 0; i < length; i++) {
-				std::string letter = line.substr(i, 1);
+				std::string character = line.substr(i, 1);
 				//Separates pieces by data based on ,
-				if (letter == ",") {
-					strArr[slot] = word;
+				if (character == ",") {
+					strArr[slot] = ele;
 					slot++;
-					word = "";
+					ele = "";
 				}
 				else {
-					word += letter;
+					ele += character;
 				}
 			}
 
-			//Adds the last part of a book
-			if (word != "\0") {
-				strArr[slot] = word;
+			//Adds the last part of a book if it is not null
+			if (ele != "\0") {
+				strArr[slot] = ele;
 			}
 
 			struct book book;
@@ -83,6 +86,8 @@ int loadBooks(std::vector<book> &books, const char* filename)
 				}
 			}
 
+			//Checks to see if the loaned id is no one
+			//Assigns the loaned to patron id to loaned id
 			if (loaned == NO_ONE) {
 				book.loaned_to_patron_id = NO_ONE;
 			}
@@ -96,15 +101,18 @@ int loadBooks(std::vector<book> &books, const char* filename)
 		//Creates an extra book that needs to be removed
 		books.pop_back();
 
+		//Checks to see if there are books in the library before returning no books
 		if (books.size() == 0) {
 			myfile.close();
 			return NO_BOOKS_IN_LIBRARY;
 		}
 
+		//Returns success if there are books in the library
 		myfile.close();
 		return SUCCESS;
 
 	}
+	//If the file could not be opened returns could not open file
 	return COULD_NOT_OPEN_FILE;
 }
 
@@ -115,6 +123,7 @@ int loadBooks(std::vector<book> &books, const char* filename)
  * */
 int saveBooks(std::vector<book> &books, const char* filename)
 {
+	//Checks to make sure the books vector is not empty before writing to a file
 	if (books.empty()) {
 		return NO_BOOKS_IN_LIBRARY;
 	}
@@ -135,7 +144,7 @@ int saveBooks(std::vector<book> &books, const char* filename)
 		bookWriter.close();
 		return SUCCESS;
 	}
-
+	//If the file could not be open returns could not open file
 	return COULD_NOT_OPEN_FILE;
 }
 
@@ -154,46 +163,48 @@ int loadPatrons(std::vector<patron> &patrons, const char* filename)
 
 	//Checks to see if the file is open
 	if (input.is_open()) {
+		//The while loop runs until it is the end of a file
 		while (!input.eof()) {
+			//Reads in a line to parse through
 			std::string line = "";
 			getline(input, line);
 
-			std::string word = "";
-			std::string words[4];
+			std::string ele = "";
+			std::string strArr[4];
 			int slot = 0;
 			int length = line.length();
 
 			//Reads through each line and parses out data based on a ,
 			for (int i = 0; i < length; i++) {
-				std::string letter = line.substr(i, 1);
-				if (letter == ",") {
-					words[slot] = word;
+				std::string character = line.substr(i, 1);
+				if (character == ",") {
+					strArr[slot] = ele;
 					slot++;
-					word = "";
+					ele = "";
 				}
 				else {
-					word += letter;
+					ele += character;
 				}
 			}
 
 			//Checks to see if word has data to input
-			if (word != "\0") {
-				words[slot] = word;
+			if (ele != "\0") {
+				strArr[slot] = ele;
 			}
 
 			int patronid = 0;
 			int numBooks = 0;
 
 			//Converts strings to ints
-			std::istringstream iss (words[0]);
+			std::istringstream iss (strArr[0]);
 			iss >> patronid;
-			std::istringstream iss1 (words[2]);
+			std::istringstream iss1 (strArr[2]);
 			iss1 >> numBooks;
 
 			//Creates a patron with the data
 			struct patron patron;
 			patron.patron_id = patronid;
-			patron.name = words[1];
+			patron.name = strArr[1];
 			patron.number_books_checked_out = numBooks;
 			patrons.push_back(patron);
 		}
@@ -203,6 +214,7 @@ int loadPatrons(std::vector<patron> &patrons, const char* filename)
 
 		//Checks to see if there are no patrons
 		if (patrons.size() == 0) {
+			//Returns no patrons in library if there are no elements in the patrons vector
 			input.close();
 			return NO_PATRONS_IN_LIBRARY;
 		}
@@ -211,6 +223,7 @@ int loadPatrons(std::vector<patron> &patrons, const char* filename)
 		return SUCCESS;
 
 	}
+	//If the file could not be open returns could not open file
 	return COULD_NOT_OPEN_FILE;
 }
 
@@ -221,7 +234,7 @@ int loadPatrons(std::vector<patron> &patrons, const char* filename)
  * */
 int savePatrons(std::vector<patron> &patrons, const char* filename)
 {
-	//Checks to make sure there are patrons
+	//Checks to make sure there are patrons before writing to a file
 	if (patrons.empty()) {
 		return NO_BOOKS_IN_LIBRARY;
 	}
@@ -242,7 +255,6 @@ int savePatrons(std::vector<patron> &patrons, const char* filename)
 		patronWriter.close();
 		return SUCCESS;
 	}
-
-	patronWriter.close();
+	//Returns could not open file if the file was not opened
 	return COULD_NOT_OPEN_FILE;
 }

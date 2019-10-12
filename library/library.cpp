@@ -4,7 +4,6 @@
 #include <time.h>
 #include <iostream>
 #include <fstream>
-
 #include "../includes_usr/library.h"
 #include "../includes_usr/datastructures.h"
 #include "../includes_usr/fileIO.h"
@@ -26,7 +25,6 @@ void reloadAllData(){
 	//Loads all the books and patrons data
 	loadBooks(books, BOOKFILE.c_str());
 	loadPatrons(patrons, PATRONFILE.c_str());
-
 }
 
 /* checkout a book to a patron
@@ -55,7 +53,7 @@ int checkout(int bookid, int patronid){
 	vector<patron>::iterator patronItr;
 	vector<book>::iterator bookItr;
 	bool enrolled = false;
-	bool in_col = false;
+	bool in_collect = false;
 
 	//Iterates through to make sure a patron is enrolled
 	for (patronItr = patrons.begin(); patronItr != patrons.end(); patronItr++) {
@@ -78,13 +76,13 @@ int checkout(int bookid, int patronid){
 	//Iterates through to see if a book is in the collection
 	for (bookItr = books.begin(); bookItr != books.end(); bookItr++) {
 		if (bookItr->book_id == bookid) {
-			in_col = true;
+			in_collect = true;
 			break;
 		}
 	}
 
 	//Checks if a book is not in collection
-	if (!in_col) {
+	if (!in_collect) {
 		return BOOK_NOT_IN_COLLECTION;
 	}
 
